@@ -11,13 +11,29 @@ fetch('http://localhost:4000/graphql', {
     body: JSON.stringify({
         query: `{
             greeting
-            owner{
+            william: owner(id: 1) {
+              id
               name
               email
               age
               websites
             }
-          }`
+            david: owner(id: 2) {
+              id
+              name
+              email
+              age
+              websites
+              error
+            }
+            cars(year: 1999){
+              make
+              model
+              year
+              fullName
+            }
+          }
+          `
     })
 })
     .then(r => r.json())
