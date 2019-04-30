@@ -58,6 +58,45 @@ const carType = new gql.GraphQLObjectType({
     }
 });
 
+const carInput = new gql.GraphQLInputObjectType({
+    name: 'carInput',
+    description: 'Car to add',
+    fields: {
+        make: {
+            name: 'make',
+            type: gql.GraphQLNonNull(gql.GraphQLString)
+        },
+        model: {
+            name: 'model',
+            type: gql.GraphQLNonNull(gql.GraphQLString)
+        },
+        year: {
+            name: 'year',
+            type: gql.GraphQLNonNull(gql.GraphQLInt)
+        }
+    }
+});
+
+const mutationType = new gql.GraphQLObjectType({
+    name: 'RootMutationType',
+    description: 'The root mutation object',
+    fields: {
+        addACar: {
+            name: 'addACar',
+            type: carType,
+            args: {
+                car: { type: carInput }
+            },
+            resolve: async (carRequest, { car }) => {
+                if (car.year > 2019 || car.year < 1970) throw new Error(`${car.year} is not between 1970 and 2019!`);
+                const addedCar = { make: car.make, model: car.model, year: car.year };
+                await data.cars.push();
+                return addedCar;
+            }
+        }
+    }
+});
+
 const queryType = new gql.GraphQLObjectType({
     name: 'RootQueryType',
     description: 'The root query object.',
@@ -113,7 +152,8 @@ const queryType = new gql.GraphQLObjectType({
 
 const schema = new gql.GraphQLSchema({
     query: queryType,
-    types: [queryType, ownerType, carType]
+    mutation: mutationType,
+    types: [queryType, ownerType, carType, mutationType]
 });
 
 module.exports.schema = schema;
